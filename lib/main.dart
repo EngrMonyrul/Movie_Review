@@ -5,6 +5,7 @@ import 'package:movie_review/utils/routes/routes_name.dart';
 import 'package:movie_review/utils/theme/theme_config.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
