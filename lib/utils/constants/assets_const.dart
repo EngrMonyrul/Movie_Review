@@ -11,4 +11,5 @@ class AssetsConst {
   static const iconLaptop = "assets/icons/Icon-3.png";
   static const iconGaming = "assets/icons/Icon-4.png";
   static const iconVR = "assets/icons/Icon-5.png";
+  static const imgTrial = "assets/images/Background Images.jpg";
 }

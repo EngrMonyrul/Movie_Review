@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:movie_review/common/widgets/custom_appbar.dart';
 import 'package:movie_review/utils/constants/app_components.dart';
 import 'package:movie_review/utils/constants/assets_const.dart';
 import 'package:movie_review/utils/extensions/context_ext.dart';
@@ -14,10 +13,48 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final scaffoldKey = GlobalKey<ScaffoldState>();
+  final dotIndicatorController = ScrollController();
+  double indicatorPosition = 0.0;
+  double indicatorSize = 0.0;
+  double dotWidth = 30;
+
+  void initialDragValue() {
+    setState(() {
+      indicatorSize = (context.screenSize.width * 3) - 30;
+      double maxScrollWidth = dotIndicatorController.position.maxScrollExtent;
+      double indicatorOffset = dotIndicatorController.offset;
+      dotIndicatorController.addListener(() {
+        indicatorPosition =
+            (indicatorOffset / maxScrollWidth) * (indicatorSize - dotWidth);
+      });
+    });
+  }
+
+  void dragOnHorizontal(DragUpdateDetails details) {
+    setState(() {
+      indicatorPosition += details.delta.dx;
+      indicatorPosition.clamp(0.0, (indicatorSize - dotWidth));
+      final maxDrag = dotIndicatorController.position.maxScrollExtent;
+      final screenWidth = context.screenSize.width;
+      final listScrollOffset =
+          (indicatorPosition / (indicatorSize - dotWidth)) * maxDrag;
+      dotIndicatorController.jumpTo(listScrollOffset);
+    });
+  }
+
+  @override
+  void initState() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      initialDragValue();
+    });
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = context.theme;
+    final screenSize = context.screenSize;
+
     return Scaffold(
       key: scaffoldKey,
       endDrawer: Drawer(
@@ -191,6 +228,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     height: 220,
                     width: double.infinity,
                     child: ListView.builder(
+                      controller: dotIndicatorController,
                       itemCount: AppComponents.exploreItem.length,
                       shrinkWrap: true,
                       scrollDirection: Axis.horizontal,
@@ -239,6 +277,45 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         );
                       },
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+
+                  /*<<-------------------------->>
+                    <<------>> smooth indicator
+                    <<-------------------------->>*/
+                  Center(
+                    child: GestureDetector(
+                      onHorizontalDragUpdate: dragOnHorizontal,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: Container(
+                          height: 8,
+                          width: screenSize.width * .3,
+                          decoration: BoxDecoration(
+                            color: Colors.grey,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          // Background color similar to your image
+                          child: Stack(
+                            children: [
+                              Positioned(
+                                left: indicatorPosition,
+                                child: Container(
+                                  width: 30,
+                                  // Set width of the indicator as needed
+                                  height: 8,
+                                  decoration: BoxDecoration(
+                                    color: Colors.red,
+                                    // Active color of the indicator
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                   const SizedBox(
@@ -333,6 +410,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     },
                   ),
                   const SizedBox(height: 30),
+
+                  /*<<-------------------------->>
+                    <<------>> faq title
+                    <<-------------------------->>*/
                   Text(
                     "Frequently Asked Questions",
                     style: theme.textTheme.titleLarge,
@@ -345,6 +426,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                   const SizedBox(height: 10),
+
+                  /*<<-------------------------->>
+                    <<------>> faq button
+                    <<-------------------------->>*/
                   GestureDetector(
                     child: Container(
                       height: 52,
@@ -360,6 +445,181 @@ class _HomeScreenState extends State<HomeScreen> {
                           fontWeight: FontWeight.w600,
                         ),
                       ),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+
+                  /*<<-------------------------->>
+                    <<------>> faqs
+                    <<-------------------------->>*/
+                  ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: AppComponents.qnafaqs.length,
+                    itemBuilder: (context, index) {
+                      final faqItem = AppComponents.qnafaqs[index];
+                      return ExpansionTile(
+                        childrenPadding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 10),
+                        tilePadding: const EdgeInsets.all(8),
+                        expandedCrossAxisAlignment: CrossAxisAlignment.start,
+                        expandedAlignment: Alignment.topLeft,
+                        title: Text(
+                          faqItem.question ?? "",
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        leading: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 10),
+                          decoration: BoxDecoration(
+                            color: theme.colorScheme.outline,
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(
+                              color:
+                                  theme.colorScheme.onPrimary.withOpacity(0.1),
+                            ),
+                          ),
+                          child: Text(
+                            "${index + 1}",
+                            style: theme.textTheme.titleSmall,
+                          ),
+                        ),
+                        visualDensity: VisualDensity.adaptivePlatformDensity,
+                        dense: true,
+                        children: [
+                          Text(
+                            faqItem.answer ?? "",
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: theme.colorScheme.secondary,
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+                  const SizedBox(
+                    height: 40,
+                  ),
+
+                  /*<<-------------------------->>
+                    <<------>> monthly pack title
+                    <<-------------------------->>*/
+                  Text(
+                    "Choose the plan that's right for you",
+                    style: theme.textTheme.headlineLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  Text(
+                    "Join StreamVibe and select from our flexible subscription options tailored to suit your viewing preferences. Get ready for non-stop entertainment!",
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.colorScheme.secondary,
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+
+                  /*<<-------------------------->>
+                    <<------>> package tab bar
+                    <<-------------------------->>*/
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: Colors.black,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                          color: theme.colorScheme.secondary.withOpacity(0.3)),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        GestureDetector(
+                          child: Container(
+                            padding: const EdgeInsets.all(12.0),
+                            decoration: BoxDecoration(
+                              color:
+                                  theme.colorScheme.secondary.withOpacity(0.3),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Text(
+                              "Monthly",
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.all(12.0),
+                          child: const Text("Yearly"),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 50,
+                  ),
+
+                  /*<<-------------------------->>
+                    <<------>> trial offer card
+                    <<-------------------------->>*/
+                  Container(
+                    height: 344,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      image: const DecorationImage(
+                        image: AssetImage(AssetsConst.imgTrial),
+                        fit: BoxFit.cover,
+                      ),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          "Start your free trial\ntoday!",
+                          textAlign: TextAlign.center,
+                          style: theme.textTheme.headlineLarge?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        Text(
+                          "This is a clear and concise call to action that encourages users to sign up for a free trial of StreamVibe.",
+                          textAlign: TextAlign.center,
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: theme.colorScheme.secondary,
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 50,
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 22,
+                            vertical: 18,
+                          ),
+                          decoration: BoxDecoration(
+                            color: theme.colorScheme.primary,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            "Start a Free Trail",
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
