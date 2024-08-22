@@ -9,6 +9,7 @@ class ColorSchemeConfig {
   static const customBlack = Color(0xFF1A1A1A);
   static const customBlackBg = Color(0xFF141414);
   static const cutomBlackBorder = Color(0xFF262626);
+  static const customDeepBlack = Color(0xFF0F0F0F);
 
   static final darkColorScheme = ColorScheme.fromSeed(
     seedColor: customRed,

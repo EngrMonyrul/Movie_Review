@@ -1,4 +1,5 @@
 import 'package:movie_review/dataModel/device_status.dart';
+import 'package:movie_review/dataModel/monthly_package.dart';
 import 'package:movie_review/dataModel/qna_faq.dart';
 import 'package:movie_review/utils/constants/assets_const.dart';
 
@@ -94,6 +95,27 @@ class AppComponents {
     QNAFAQ(
       question: "What is the StreamVibe free trial?",
       answer: "We are updating",
+    ),
+  ];
+
+  static final monthlyPackages = [
+    MonthlyPackage(
+      title: "Basic Plan",
+      description:
+          "Enjoy an extensive library of movies and shows, featuring a range of content, including recently released titles.",
+      price: 9.99,
+    ),
+    MonthlyPackage(
+      title: "Standard Plan",
+      description:
+          "Access to a wider selection of movies and shows, including most new releases and exclusive content",
+      price: 12.99,
+    ),
+    MonthlyPackage(
+      title: "Premium Plan",
+      description:
+          "Access to a widest selection of movies and shows, including all new releases and Offline Viewing",
+      price: 14.99,
     ),
   ];
 }
